@@ -72,7 +72,7 @@ function! flognavigate#get_full_commit_hash() abort
 endfunction
 
 function! flognavigate#offset_head_hash() abort
-  return fugitive#RevParse('HEAD@{' . g:flog_head_offset . '}')
+  return fugitive#RevParse('HEAD@{' . g:flognavigate_head_offset . '}')
 endfunction
 
 function! flognavigate#jump_to_offset_head(offset) abort
@@ -81,16 +81,16 @@ function! flognavigate#jump_to_offset_head(offset) abort
     return v:null
   endif
   let l:current_head_commit = flognavigate#offset_head_hash()
-  if g:flog_head_offset == 0 || l:current_commit == l:current_head_commit
+  if g:flognavigate_head_offset == 0 || l:current_commit == l:current_head_commit
     let l:reflog_lines = systemlist(flog#get_fugitive_git_command() . ' reflog')
     let l:reflog_size = len(l:reflog_lines)
-    let g:flog_head_offset = min([max([0, g:flog_head_offset + a:offset]), l:reflog_size - 1])
+    let g:flognavigate_head_offset = min([max([0, g:flognavigate_head_offset + a:offset]), l:reflog_size - 1])
   else
-    let g:flog_head_offset = 0
+    let g:flognavigate_head_offset = 0
   endif
   let l:head_commit = flognavigate#offset_head_hash()
   call flog#jump_to_commit(l:head_commit)
-  echom 'HEAD@{' . g:flog_head_offset . '}'
+  echom 'HEAD@{' . g:flognavigate_head_offset . '}'
 endfunction
 
 " For example, bind to [h

@@ -89,7 +89,7 @@ function! flognavigate#jump_to_offset_head(offset) abort
     let g:flognavigate_head_offset = 0
   endif
   let l:head_commit = flognavigate#offset_head_hash()
-  call flog#jump_to_commit(l:head_commit)
+  call flognavigate#jump_to_commit(l:head_commit)
   echom 'HEAD@{' . g:flognavigate_head_offset . '}'
 endfunction
 
@@ -152,7 +152,7 @@ function! flognavigate#jump_up_N_parents(amount) abort
       return
     endif
     let l:current_commit = flognavigate#stable_select(l:parents, l:current_commit)
-    call flog#jump_to_commit(l:current_commit)
+    call flognavigate#jump_to_commit(l:current_commit)
     let c += 1
   endwhile
 endfunction
@@ -176,7 +176,7 @@ function! flognavigate#jump_down_N_children(amount) abort
       return
     endif
     let l:current_commit = flognavigate#stable_select(l:children, l:current_commit)
-    call flog#jump_to_commit(l:current_commit)
+    call flognavigate#jump_to_commit(l:current_commit)
     let c += 1
   endwhile
 endfunction

@@ -96,12 +96,12 @@ endfunction
 " For example, bind to [h
 " these are for jumping through the previously checked out commits
 function! flognavigate#jump_to_previous_head() abort
-  call flog#jump_to_offset_head(1)
+  call flognavigate#jump_to_offset_head(1)
 endfunction
 
 " For example, bind to ]h
 function! flognavigate#jump_to_next_head() abort
-  call flog#jump_to_offset_head(-1)
+  call flognavigate#jump_to_offset_head(-1)
 endfunction
 
 " }}}

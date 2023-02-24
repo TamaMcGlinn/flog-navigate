@@ -6,7 +6,7 @@
 " line numbers as expected
 function! flognavigate#up() abort
   if v:count1 == 1
-    call flog#previous_commit()
+    call flog#floggraph#nav#PrevCommit()
   else
     execute 'normal! ' . v:count1 . 'k'
   endif
@@ -14,7 +14,7 @@ endfunction
 
 function! flognavigate#down() abort
   if v:count1 == 1
-    call flog#next_commit()
+    call flog#floggraph#nav#NextCommit()
   else
     execute 'normal! ' . v:count1 . 'j'
   endif

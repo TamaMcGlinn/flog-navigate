@@ -35,15 +35,15 @@ function! flognavigate#find_predicate(haystack, predicate) abort
 endfunction
 
 function! flognavigate#find_commit(state, commit_hash) abort
-  return flognavigate#find_predicate(a:state.commits, {item -> flognavigate#starts_with(a:commit_hash, item.short_commit_hash)})
+  return flognavigate#find_predicate(a:state.commits, {item -> flognavigate#starts_with(a:commit_hash, item.hash)})
 endfunction
 
 function! flognavigate#jump_to_commit(commit_hash) abort
-  let l:state = flog#get_state()
+  let l:state = flog#state#GetBufState()
   let l:commit = flognavigate#find_commit(l:state, a:commit_hash)
   if type(l:commit) != v:t_dict
     let l:state.reflog = v:true
-    call flog#populate_graph_buffer()
+    call flog#floggraph#buf#Update()
     let l:commit = flognavigate#find_commit(l:state, a:commit_hash)
   endif
   let l:index = index(l:state.commits, l:commit)
@@ -55,12 +55,11 @@ function! flognavigate#jump_to_commit(commit_hash) abort
 endfunction
 
 function! flognavigate#get_short_commit_hash() abort
-  let l:state = flog#get_state()
-  let l:current_commit = flog#get_commit_at_line()
+  let l:current_commit = flog#floggraph#commit#GetAtLine()
   if type(l:current_commit) != v:t_dict
     return
   endif
-  return l:current_commit.short_commit_hash
+  return l:current_commit.hash
 endfunction
 
 function! flognavigate#get_full_commit_hash() abort
@@ -145,7 +144,7 @@ function! flognavigate#jump_up_N_parents(amount) abort
   endif
   let c = 0
   while c < a:amount
-    let l:git_parent_command = flog#get_fugitive_git_command() . ' rev-list --parents -n 1 ' . l:current_commit
+    let l:git_parent_command = flog#fugitive#GetGitCommand() . ' rev-list --parents -n 1 ' . l:current_commit
     let l:parent_commit = system(l:git_parent_command)
     let l:parents = split(l:parent_commit)[1:]
     if len(l:parents) == 0

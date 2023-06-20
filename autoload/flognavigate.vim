@@ -171,7 +171,7 @@ function! flognavigate#jump_down_N_children(amount) abort
   let l:parent_log = systemlist(l:git_log_command)
   while c < a:amount
     let l:children = flognavigate#find_all_predicate(l:parent_log, {log_line -> match(log_line, ' ' . l:current_commit) != -1})
-    call map(l:children, "substitute(v:val, ' [^ ]*$', '', '')")
+    call map(l:children, "substitute(v:val, ' .*$', '', '')")
     if len(l:children) == 0
       return
     endif

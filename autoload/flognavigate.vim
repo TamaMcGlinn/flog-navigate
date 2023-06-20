@@ -118,7 +118,8 @@ endfunction
 " the first element. But the most recent inputs and outputs 
 " of this function are given priority before any others,
 " giving the function 'stability' when navigating up/down
-" a directed acyclic graph
+" a directed acyclic graph in the sense that consequtive opposite inputs
+" cancel: (up, down) or (down, up) are guaranteed to end up on the same commit
 function! flognavigate#stable_select(commit_list, current_commit) abort
   let l:visited_commits = get(b:, 'flog_visited_commits', [])
   if index(l:visited_commits, a:current_commit) == -1

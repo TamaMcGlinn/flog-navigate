@@ -6,7 +6,7 @@
 " line numbers as expected
 function! flognavigate#up() abort
   if v:count1 == 1
-    call flog#previous_commit()
+    call flog#floggraph#nav#PrevCommit()
   else
     execute 'normal! ' . v:count1 . 'k'
   endif
@@ -14,7 +14,7 @@ endfunction
 
 function! flognavigate#down() abort
   if v:count1 == 1
-    call flog#next_commit()
+    call flog#floggraph#nav#NextCommit()
   else
     execute 'normal! ' . v:count1 . 'j'
   endif
@@ -35,15 +35,15 @@ function! flognavigate#find_predicate(haystack, predicate) abort
 endfunction
 
 function! flognavigate#find_commit(state, commit_hash) abort
-  return flognavigate#find_predicate(a:state.commits, {item -> flognavigate#starts_with(a:commit_hash, item.short_commit_hash)})
+  return flognavigate#find_predicate(a:state.commits, {item -> flognavigate#starts_with(a:commit_hash, item.hash)})
 endfunction
 
 function! flognavigate#jump_to_commit(commit_hash) abort
-  let l:state = flog#get_state()
+  let l:state = flog#state#GetBufState()
   let l:commit = flognavigate#find_commit(l:state, a:commit_hash)
   if type(l:commit) != v:t_dict
     let l:state.reflog = v:true
-    call flog#populate_graph_buffer()
+    call flog#floggraph#buf#Update()
     let l:commit = flognavigate#find_commit(l:state, a:commit_hash)
   endif
   let l:index = index(l:state.commits, l:commit)
@@ -55,12 +55,11 @@ function! flognavigate#jump_to_commit(commit_hash) abort
 endfunction
 
 function! flognavigate#get_short_commit_hash() abort
-  let l:state = flog#get_state()
-  let l:current_commit = flog#get_commit_at_line()
+  let l:current_commit = flog#floggraph#commit#GetAtLine()
   if type(l:current_commit) != v:t_dict
     return
   endif
-  return l:current_commit.short_commit_hash
+  return l:current_commit.hash
 endfunction
 
 function! flognavigate#get_full_commit_hash() abort
@@ -82,7 +81,7 @@ function! flognavigate#jump_to_offset_head(offset) abort
   endif
   let l:current_head_commit = flognavigate#offset_head_hash()
   if g:flognavigate_head_offset == 0 || l:current_commit == l:current_head_commit
-    let l:reflog_lines = systemlist(flog#get_fugitive_git_command() . ' reflog')
+    let l:reflog_lines = systemlist(flog#fugitive#GetGitCommand() . ' reflog')
     let l:reflog_size = len(l:reflog_lines)
     let g:flognavigate_head_offset = min([max([0, g:flognavigate_head_offset + a:offset]), l:reflog_size - 1])
   else
@@ -119,7 +118,8 @@ endfunction
 " the first element. But the most recent inputs and outputs 
 " of this function are given priority before any others,
 " giving the function 'stability' when navigating up/down
-" a directed acyclic graph
+" a directed acyclic graph in the sense that consequtive opposite inputs
+" cancel: (up, down) or (down, up) are guaranteed to end up on the same commit
 function! flognavigate#stable_select(commit_list, current_commit) abort
   let l:visited_commits = get(b:, 'flog_visited_commits', [])
   if index(l:visited_commits, a:current_commit) == -1
@@ -145,7 +145,7 @@ function! flognavigate#jump_up_N_parents(amount) abort
   endif
   let c = 0
   while c < a:amount
-    let l:git_parent_command = flog#get_fugitive_git_command() . ' rev-list --parents -n 1 ' . l:current_commit
+    let l:git_parent_command = flog#fugitive#GetGitCommand() . ' rev-list --parents -n 1 ' . l:current_commit
     let l:parent_commit = system(l:git_parent_command)
     let l:parents = split(l:parent_commit)[1:]
     if len(l:parents) == 0
@@ -167,11 +167,11 @@ function! flognavigate#jump_down_N_children(amount) abort
     return
   endif
   let c = 0
-  let l:git_log_command = flog#get_fugitive_git_command() . " log --format='%H %P' --all --reflog"
+  let l:git_log_command = flog#fugitive#GetGitCommand() . " log --format='%H %P' --all --reflog"
   let l:parent_log = systemlist(l:git_log_command)
   while c < a:amount
     let l:children = flognavigate#find_all_predicate(l:parent_log, {log_line -> match(log_line, ' ' . l:current_commit) != -1})
-    call map(l:children, "substitute(v:val, ' [^ ]*$', '', '')")
+    call map(l:children, "substitute(v:val, ' .*$', '', '')")
     if len(l:children) == 0
       return
     endif

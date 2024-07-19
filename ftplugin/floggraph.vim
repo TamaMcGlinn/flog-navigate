@@ -13,8 +13,8 @@ if !exists("g:flognavigate_no_head_mappings")
 endif
 
 if !exists("g:flognavigate_no_ref_mappings")
-  nnoremap <buffer> <silent> ]r :<C-U>call flog#next_ref()<CR>
-  nnoremap <buffer> <silent> [r :<C-U>call flog#previous_ref()<CR>
+  nnoremap <buffer> <silent> ]r :<C-U>call flog#floggraph#nav#NextRefCommit()<CR>
+  nnoremap <buffer> <silent> [r :<C-U>call flog#floggraph#nav#PrevRefCommit()<CR>
 endif
 
 " }}}

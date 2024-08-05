@@ -45,13 +45,14 @@ function! flognavigate#jump_to_commit(commit_hash) abort
     let l:state.reflog = v:true
     call flog#floggraph#buf#Update()
     let l:commit = flognavigate#find_commit(l:state, a:commit_hash)
+    if type(l:commit) != v:t_dict
+      echoerr "Unable to find commit starting with " .. commit_hash
+      return
+    endif
   endif
   let l:index = index(l:state.commits, l:commit)
   let l:index = min([max([l:index, 0]), len(l:state.commits) - 1])
-  let l:line = index(l:state.line_commits, l:state.commits[l:index]) + 1
-  if l:line >= 0
-    exec l:line
-  endif
+  exec l:state.commits[l:index].line
 endfunction
 
 function! flognavigate#get_short_commit_hash() abort

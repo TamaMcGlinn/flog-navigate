@@ -46,7 +46,7 @@ function! flognavigate#jump_to_commit(commit_hash) abort
     call flog#floggraph#buf#Update()
     let l:commit = flognavigate#find_commit(l:state, a:commit_hash)
     if type(l:commit) != v:t_dict
-      echoerr "Unable to find commit starting with " .. commit_hash
+      echoerr "Unable to find commit starting with " .. a:commit_hash
       return
     endif
   endif
